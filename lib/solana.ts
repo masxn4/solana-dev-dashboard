@@ -1,5 +1,6 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { programName } from "./programs";
+import { transactionDetails } from "./transaction";
 
 export const DEFAULT_RPC = process.env.SOLANA_RPC_URL || "https://api.mainnet.solana.com";
 
@@ -35,6 +36,6 @@ export async function inspectSignature(signature:string, endpoint=DEFAULT_RPC){
     feeLamports:tx.meta?.fee ?? 0,computeUnits:tx.meta?.computeUnitsConsumed ?? null,
     accounts:Array.from({length:keys.length},(_,i)=>keys.get(i)?.toBase58()).filter(Boolean),
     programs:tx.transaction.message.compiledInstructions.map(ix=>keys.get(ix.programIdIndex)?.toBase58()).filter((x):x is string=>Boolean(x)).filter((x,i,a)=>a.indexOf(x)===i).map(id=>({id,label:programName(id)})),
-    logs:tx.meta?.logMessages ?? [],error:tx.meta?.err ?? null
+    logs:tx.meta?.logMessages ?? [],error:tx.meta?.err ?? null,...transactionDetails(tx)
   };
 }
